@@ -1,0 +1,407 @@
+[
+    {
+        "id": "7dff91e08eb26027",
+        "type": "tab",
+        "label": "ARDUINO (S2)",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "d994916e7bf069ef",
+        "type": "group",
+        "z": "7dff91e08eb26027",
+        "name": "STS2 TO DATABASE",
+        "style": {
+            "stroke": "#ff3f3f",
+            "label": true,
+            "label-position": "n"
+        },
+        "nodes": [
+            "0b55cf3df1c5d750",
+            "19550f94c81a42a0",
+            "cfe7671e463e124d",
+            "05be3c21dc959e2f",
+            "91ecb9ad6eaf8054",
+            "a4ad8f3907faf77a"
+        ],
+        "x": 194,
+        "y": 99,
+        "w": 1152,
+        "h": 262
+    },
+    {
+        "id": "d058a49083bc0833",
+        "type": "group",
+        "z": "7dff91e08eb26027",
+        "name": "STS2 TO MONITORING",
+        "style": {
+            "label": true,
+            "label-position": "n",
+            "stroke": "#0070c0"
+        },
+        "nodes": [
+            "33bf27f4c427e31b",
+            "efafd0d8938268b0",
+            "f2c6857efa93dc09",
+            "92e4d90831a08865",
+            "f2204bd6bf6c946c",
+            "4090da06efb05d73",
+            "55723048aed8dd3e"
+        ],
+        "x": 334,
+        "y": 419,
+        "w": 832,
+        "h": 202
+    },
+    {
+        "id": "0b55cf3df1c5d750",
+        "type": "mqtt in",
+        "z": "7dff91e08eb26027",
+        "g": "d994916e7bf069ef",
+        "name": "",
+        "topic": "iot/inspection/sts2",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "f293b3352c9c7fd1",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 310,
+        "y": 200,
+        "wires": [
+            [
+                "91ecb9ad6eaf8054",
+                "a4ad8f3907faf77a"
+            ]
+        ]
+    },
+    {
+        "id": "19550f94c81a42a0",
+        "type": "function",
+        "z": "7dff91e08eb26027",
+        "g": "d994916e7bf069ef",
+        "name": "function to mysql",
+        "func": "// The JSON node before this has already converted the string to an object\n// Access the data using msg.payload\nvar sensorID = msg.payload.sensor_key;\nvar readingValue = msg.payload.value;\n\n// Build the SQL Insert Query\n// We use NOW() so the database records the exact time it receives the data\nmsg.topic = \"INSERT INTO sensor_data (sensor_ID, log_time, data_value) VALUES (\" \n            + sensorID + \", NOW(), \" + readingValue + \");\";\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 240,
+        "wires": [
+            [
+                "cfe7671e463e124d",
+                "05be3c21dc959e2f"
+            ]
+        ]
+    },
+    {
+        "id": "cfe7671e463e124d",
+        "type": "debug",
+        "z": "7dff91e08eb26027",
+        "g": "d994916e7bf069ef",
+        "name": "debug 21",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1100,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "33bf27f4c427e31b",
+        "type": "mqtt in",
+        "z": "7dff91e08eb26027",
+        "g": "d058a49083bc0833",
+        "name": "",
+        "topic": "iot/inspection/sts2",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "f293b3352c9c7fd1",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 450,
+        "y": 520,
+        "wires": [
+            [
+                "55723048aed8dd3e"
+            ]
+        ]
+    },
+    {
+        "id": "efafd0d8938268b0",
+        "type": "function",
+        "z": "7dff91e08eb26027",
+        "g": "d058a49083bc0833",
+        "name": "function For Monitoring",
+        "func": "// The JSON node has already converted the MQTT string to a JS Object\nvar sensorID = msg.payload.sensor_key;\nvar readingValue = msg.payload.value;\n\n// Define the 4 possible outputs\nvar outOccupancy = null; // Output 1\nvar outDistance  = null; // Output 2\nvar outSmoke     = null; // Output 3\nvar outFan       = null; // Output 4\n\n// Route the value based on the ID defined in your Python SENSORS dictionary\nif (sensorID === 121) {\n    outOccupancy = { payload: readingValue };\n} else if (sensorID === 122) {\n    outDistance = { payload: readingValue };\n} else if (sensorID === 123) {\n    outSmoke = { payload: readingValue };\n} else if (sensorID === 124) {\n    outFan = { payload: readingValue };\n}\n\n// Return the array in the order of the output pins\nreturn [outOccupancy, outDistance, outSmoke, outFan];",
+        "outputs": 4,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 840,
+        "y": 520,
+        "wires": [
+            [
+                "f2204bd6bf6c946c"
+            ],
+            [
+                "92e4d90831a08865"
+            ],
+            [
+                "f2c6857efa93dc09"
+            ],
+            [
+                "4090da06efb05d73"
+            ]
+        ]
+    },
+    {
+        "id": "f2c6857efa93dc09",
+        "type": "ui_gauge",
+        "z": "7dff91e08eb26027",
+        "g": "d058a49083bc0833",
+        "name": "",
+        "group": "30ca192315245f58",
+        "order": 42,
+        "width": "0",
+        "height": "0",
+        "gtype": "donut",
+        "title": "Smoke Level",
+        "label": "mg/m³",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1070,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "92e4d90831a08865",
+        "type": "ui_gauge",
+        "z": "7dff91e08eb26027",
+        "g": "d058a49083bc0833",
+        "name": "",
+        "group": "30ca192315245f58",
+        "order": 41,
+        "width": "0",
+        "height": "0",
+        "gtype": "compass",
+        "title": "Distance",
+        "label": "cm",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1060,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "f2204bd6bf6c946c",
+        "type": "ui_template",
+        "z": "7dff91e08eb26027",
+        "g": "d058a49083bc0833",
+        "group": "30ca192315245f58",
+        "name": "Occupancy",
+        "order": 35,
+        "width": "0",
+        "height": "0",
+        "format": "<div\n    style=\"text-align:center; padding:15px; border-radius:12px; background:#1e1e1e; color:white; font-size:1.4em; box-shadow:0 0 10px rgba(0,0,0,0.4);\">\n\n    <div ng-if=\"msg.payload == 1\">\n        <div style=\"font-size:3em; animation: pulse 1.5s infinite;\">\n            👷🏻‍♂️\n        </div>\n        <div style=\"margin-top:5px; font-weight:bold; color:#4CAF50;\">\n            INSPECTION IN PROCESS\n        </div>\n    </div>\n\n    <div ng-if=\"msg.payload == 0\">\n        <div style=\"font-size:3em; opacity:0.5;\">\n            🚫\n        </div>\n        <div style=\"margin-top:5px; font-weight:bold; color:#F44336;\">\n            NO OCCUPANCY\n        </div>\n    </div>\n\n</div>\n\n<style>\n    @keyframes pulse {\n        0% {\n            transform: scale(1);\n        }\n\n        50% {\n            transform: scale(1.15);\n        }\n\n        100% {\n            transform: scale(1);\n        }\n    }\n</style>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1070,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4090da06efb05d73",
+        "type": "ui_template",
+        "z": "7dff91e08eb26027",
+        "g": "d058a49083bc0833",
+        "group": "30ca192315245f58",
+        "name": "Fan State",
+        "order": 43,
+        "width": "0",
+        "height": "0",
+        "format": "<div\n    style=\"text-align:center; padding:15px; border-radius:12px; background:#1e1e1e; color:white; font-size:1.4em; box-shadow:0 0 10px rgba(0,0,0,0.4);\">\n\n    <div ng-if=\"msg.payload == 1\">\n        <div style=\"font-size:3em; animation: spin 1s linear infinite;\">\n            𖣘\n        </div>\n        <div style=\"margin-top:5px; font-weight:bold; color:#4CAF50;\">\n            FAN ON\n        </div>\n    </div>\n\n    <div ng-if=\"msg.payload == 0\">\n        <div style=\"font-size:3em; opacity:0.4;\">\n            ⛔\n        </div>\n        <div style=\"margin-top:5px; font-weight:bold; color:#F44336;\">\n            FAN OFF\n        </div>\n    </div>\n\n</div>\n\n<style>\n    @keyframes spin {\n        0% {\n            transform: rotate(0deg);\n        }\n\n        100% {\n            transform: rotate(360deg);\n        }\n    }\n</style>",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 1060,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "05be3c21dc959e2f",
+        "type": "mysql",
+        "z": "7dff91e08eb26027",
+        "g": "d994916e7bf069ef",
+        "mydb": "003111f4cdfb63a9",
+        "name": "",
+        "x": 1210,
+        "y": 200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "91ecb9ad6eaf8054",
+        "type": "debug",
+        "z": "7dff91e08eb26027",
+        "g": "d994916e7bf069ef",
+        "name": "debug 22",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "a4ad8f3907faf77a",
+        "type": "json",
+        "z": "7dff91e08eb26027",
+        "g": "d994916e7bf069ef",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 610,
+        "y": 260,
+        "wires": [
+            [
+                "19550f94c81a42a0"
+            ]
+        ]
+    },
+    {
+        "id": "55723048aed8dd3e",
+        "type": "json",
+        "z": "7dff91e08eb26027",
+        "g": "d058a49083bc0833",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 650,
+        "y": 480,
+        "wires": [
+            [
+                "efafd0d8938268b0"
+            ]
+        ]
+    },
+    {
+        "id": "f293b3352c9c7fd1",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": " 10.108.138.178",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "30ca192315245f58",
+        "type": "ui_group",
+        "name": "IOT_MINI_PROJECT",
+        "tab": "4bd7bd90038e815a",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "003111f4cdfb63a9",
+        "type": "MySQLdatabase",
+        "name": "MINI_PROJECT_IOT_DB",
+        "host": "127.0.0.1",
+        "port": "3306",
+        "db": "Mini_Project_Database",
+        "tz": "",
+        "charset": "UTF8"
+    },
+    {
+        "id": "4bd7bd90038e815a",
+        "type": "ui_tab",
+        "name": "MONITOR",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "8677bb0bdef40497",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6",
+            "node-red-node-mysql": "3.0.0"
+        }
+    }
+]

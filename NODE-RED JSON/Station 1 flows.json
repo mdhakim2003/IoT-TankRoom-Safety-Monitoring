@@ -1,0 +1,218 @@
+[
+    {
+        "id": "83d42c92d63fa695",
+        "type": "group",
+        "z": "75e9e1a572af8d06",
+        "name": "Sys1 To Monitoring",
+        "style": {
+            "stroke": "#addb7b",
+            "label": true,
+            "label-position": "n"
+        },
+        "nodes": [
+            "dd552f04af4807dd",
+            "67c4cd66fdf39f7b",
+            "4038ca2aed628370",
+            "03703ea72ad79377",
+            "911aa7a848a8a09c"
+        ],
+        "x": 314,
+        "y": 299,
+        "w": 792,
+        "h": 202
+    },
+    {
+        "id": "dd552f04af4807dd",
+        "type": "function",
+        "z": "75e9e1a572af8d06",
+        "g": "83d42c92d63fa695",
+        "name": "function For Monitoring",
+        "func": "// Get the sensor ID and the reading value\nvar sensorID = msg.payload.sensor_key;\nvar val = msg.payload.value;\n\n// Create 3 separate message objects for the 3 outputs\nvar outTemp = null;\nvar outHum = null;\nvar outLight = null;\n\n// Route based on the Sensor IDs defined in your Python script\nif (sensorID === 118) {\n    outTemp = { payload: val }; // Output 1\n} else if (sensorID === 119) {\n    outHum = { payload: val };  // Output 2\n} else if (sensorID === 120) {\n    outLight = { payload: val }; // Output 3\n}\n\n// Return the array - the order matches the dots on the right of the node\nreturn [outTemp, outHum, outLight];",
+        "outputs": 3,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 720,
+        "y": 400,
+        "wires": [
+            [
+                "4038ca2aed628370"
+            ],
+            [
+                "03703ea72ad79377"
+            ],
+            [
+                "911aa7a848a8a09c"
+            ]
+        ]
+    },
+    {
+        "id": "67c4cd66fdf39f7b",
+        "type": "mqtt in",
+        "z": "75e9e1a572af8d06",
+        "g": "83d42c92d63fa695",
+        "name": "",
+        "topic": "iot/monitoring/sts1",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "0e2b398eecd43d07",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 430,
+        "y": 400,
+        "wires": [
+            [
+                "dd552f04af4807dd"
+            ]
+        ]
+    },
+    {
+        "id": "4038ca2aed628370",
+        "type": "ui_gauge",
+        "z": "75e9e1a572af8d06",
+        "g": "83d42c92d63fa695",
+        "name": "",
+        "group": "30ca192315245f58",
+        "order": 24,
+        "width": "0",
+        "height": "0",
+        "gtype": "gage",
+        "title": "Temperature",
+        "label": "°C",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "60",
+        "colors": [
+            "#01fe1f",
+            "#eeff00",
+            "#ff0000"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1010,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "03703ea72ad79377",
+        "type": "ui_gauge",
+        "z": "75e9e1a572af8d06",
+        "g": "83d42c92d63fa695",
+        "name": "",
+        "group": "30ca192315245f58",
+        "order": 25,
+        "width": "0",
+        "height": "0",
+        "gtype": "wave",
+        "title": "Humidity",
+        "label": "%",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1000,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "911aa7a848a8a09c",
+        "type": "ui_gauge",
+        "z": "75e9e1a572af8d06",
+        "g": "83d42c92d63fa695",
+        "name": "",
+        "group": "30ca192315245f58",
+        "order": 26,
+        "width": "0",
+        "height": "0",
+        "gtype": "donut",
+        "title": "Light",
+        "label": "lx",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "1000",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 990,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "0e2b398eecd43d07",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": " 10.108.138.178",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "30ca192315245f58",
+        "type": "ui_group",
+        "name": "IOT_MINI_PROJECT",
+        "tab": "4bd7bd90038e815a",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "4bd7bd90038e815a",
+        "type": "ui_tab",
+        "name": "MONITOR",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "9577352b02373172",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
